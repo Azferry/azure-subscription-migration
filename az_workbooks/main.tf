@@ -13,4 +13,9 @@ resource "azurerm_application_insights_workbook" "wb" {
   tags = {
     AzMigration = "Assessment"
   }
+  lifecycle {
+    ignore_changes = [
+      name
+    ]
+  }
 }
