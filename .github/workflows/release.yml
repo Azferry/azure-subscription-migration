@@ -1,0 +1,44 @@
+name: auto_releaser
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+
+jobs:
+  releaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Create-artifact
+        uses: actions/upload-artifact@v3
+        with: 
+          name: migration-assistant
+          path: |
+            ./az_workbook/*
+            ./README.md
+            ./LICENSE
+
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: ${{ steps.get_version.outputs.VERSION }}
+          body: "Subscription Migration Tools Release"
+          generate_release_notes: true
+          files: |
+            ./az_workbook/*
+            ./README.md
+            ./LICENSE
+    
