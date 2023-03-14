@@ -1,0 +1,672 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# Subscription Migration Assessment\r\n\r\nV0.1 - Last modified 3/14/23"
+      },
+      "name": "text - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Important\r\nMoving an Azure subscription to a new tenant can have impact on your organization's Azure environment. Before initiating a subscription migration to a new tenant, it is recommended to thoroughly evaluate the potential impacts. This workbook lists the known Azure resources in your subscription that is impacted when migrating a subscription to a new tenant. Because resource types in Azure are constantly evolving, there might be additional dependencies not listed here that can cause a breaking change to your environment. Please refere to the microsoft documentation for [Transfer an Azure subscription to a different Azure AD directory](https://learn.microsoft.com/en-us/azure/role-based-access-control/transfer-subscription)\r\n\r\nThis workbook does show - Azure AD App Registrations, Role Assignments, Custom Role Definitions, and Azure Policy Definitions & Assignments",
+        "style": "warning"
+      },
+      "name": "text - 8"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "value::tenant"
+        ],
+        "parameters": [
+          {
+            "id": "05eab8d1-96de-495d-96e6-51805d1ed2e1",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscriptions",
+            "type": 6,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "includeAll": true
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "value": [
+              "/subscriptions/918e0226-090f-4337-a4cc-e8614d110d0f",
+              "/subscriptions/8b3c51ac-2b67-4703-bc14-1518bdca3a37",
+              "/subscriptions/c949b54f-c539-443a-9fc2-6289a2815edf"
+            ]
+          }
+        ],
+        "style": "pills",
+        "queryType": 1,
+        "resourceType": "microsoft.resources/tenants"
+      },
+      "name": "parameters - 3"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "fb8b8c6c-2856-435e-8314-2a0682069f30",
+            "cellValue": "selectTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Services",
+            "subTarget": "1",
+            "style": "link"
+          },
+          {
+            "id": "84b83ca9-7e06-4c63-87f5-9beee78ef533",
+            "cellValue": "selectTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Storage",
+            "subTarget": "2",
+            "style": "link"
+          },
+          {
+            "id": "8491c320-fe42-4827-a791-074b594d9fb7",
+            "cellValue": "selectTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Identity",
+            "subTarget": "3",
+            "style": "link"
+          },
+          {
+            "id": "0aae2d44-d8ed-4f25-b11a-e1ccee2453ef",
+            "cellValue": "selectTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Compute",
+            "subTarget": "4",
+            "style": "link"
+          },
+          {
+            "id": "977deda9-6832-4292-82eb-b2f4d1ac0f29",
+            "cellValue": "selectTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Encryption",
+            "subTarget": "5",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "navagation"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "summarize count() by location",
+              "size": 0,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ],
+              "visualization": "map",
+              "mapSettings": {
+                "locInfo": "AzureLoc",
+                "locInfoColumn": "location",
+                "sizeSettings": "count_",
+                "sizeAggregation": "Sum",
+                "labelSettings": "location",
+                "legendMetric": "count_",
+                "legendAggregation": "Sum",
+                "itemColorSettings": {
+                  "nodeColorField": "count_",
+                  "colorAggregation": "Sum",
+                  "type": "heatmap",
+                  "heatmapPalette": "greenRed"
+                }
+              }
+            },
+            "customWidth": "50",
+            "name": "query - 6"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "ResourceContainers  | where type =~ 'Microsoft.Resources/subscriptions' | project SubscriptionName = name, subscriptionId | join (Resources| summarize resourceCount=count() by subscriptionId) on subscriptionId\n",
+              "size": 0,
+              "title": "Resources Per Subscription",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "showBorder": false,
+                "titleContent": {
+                  "columnMatch": "SubscriptionName",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "resourceCount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              },
+              "graphSettings": {
+                "type": 0,
+                "topContent": {
+                  "columnMatch": "SubscriptionName",
+                  "formatter": 1
+                },
+                "centerContent": {
+                  "columnMatch": "resourceCount",
+                  "formatter": 1,
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              }
+            },
+            "customWidth": "50",
+            "name": "query - 7"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Key Vaults\r\nYou must update the tenant ID associated with the key vaults. You must remove and add new access policies.\r\n"
+            },
+            "name": "text - 0"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources \r\n| where type == \"microsoft.keyvault/vaults\"\r\n| project rid=id, resourceGroup, subscriptionId\r\n\r\n",
+              "size": 0,
+              "title": "Keyvaults",
+              "noDataMessage": "No Keyvaults were found",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resources/subscriptions",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "KvQuery"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Azure SQL\r\nYou cannot transfer an Azure SQL database with Azure AD authentication enabled to a different directory. For more information, see [Use Azure Active Directory authentication.](https://learn.microsoft.com/en-us/azure/azure-sql/database/authentication-aad-overview)"
+            },
+            "name": "text - 2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources \r\n| where type == \"microsoft.sql/servers\" \r\n| extend administrators=properties.administrators \r\n| where administrators.azureADOnlyAuthentication == \"true\" \r\n| project name, subscriptionId, resourceGroup, rid=id",
+              "size": 0,
+              "noDataMessage": "Azure SQL with AD enabled was not found",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 3"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Azure MySQL\r\nYou cannot transfer an Azure database for MySQL (Single and Flexible server) with Azure AD authentication enabled to a different directory.\r\n"
+            },
+            "name": "text - 4"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"microsoft.dbformysql/flexibleservers\"\r\n| project name, resourceGroup, subscriptionId, id",
+              "size": 0,
+              "title": "Azure Database for MySQL Flexible Server",
+              "noDataMessage": "Azure Database for MySQL Flexible Server  was not found in subscriptions",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 5"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"microsoft.dbformysql/servers\"",
+              "size": 0,
+              "title": "Azure Database for MySQL - Single Server is scheduled for retirement by September 16, 2024",
+              "noDataMessage": "Azure Database for MySQL was not found in subscription",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 8"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectTab",
+        "comparison": "isEqualTo",
+        "value": "1"
+      },
+      "name": "group - 0"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## Storage Accounts\r\nYou must re-create any ACLs."
+            },
+            "name": "text - 0"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Resources\r\n| where type =~ 'microsoft.storage/storageAccounts' and isnotnull(properties['azureFilesIdentityBasedAuthentication'])\r\n| project name, resourceGroup, AuthType=properties['azureFilesIdentityBasedAuthentication'], subscriptionId",
+              "size": 0,
+              "title": "Storage Accounts Fileshare AuthType",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "sa_auth_type"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"microsoft.storage/storageaccounts\" and properties['encryption'].keySource == \"Microsoft.Keyvault\"\r\n| project id, resourceGroup,  EncryptionKeySource=properties['encryption'].keySource, Keyvault=properties['encryption'].keyvaultproperties.keyvaulturi, subscriptionId",
+              "size": 0,
+              "title": "Storage Accounts with CMK enabled",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 6"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Azure File Sync\r\nThe storage sync service and/or storage account can be moved to a different directory. For more information, see [Frequently asked questions about Azure Files](https://learn.microsoft.com/en-us/azure/storage/files/storage-files-faq#azure-file-sync)"
+            },
+            "name": "text - 2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources \r\n| where type == \"microsoft.storagesync/storagesyncservices\"\r\n| project name, subscriptionId, resourceGroup, rid=id",
+              "size": 0,
+              "noDataMessage": "Azure File Sync was not found in the selected subscriptions",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 3"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Datalake\r\nACL needs to be recreated"
+            },
+            "name": "text - 4"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources \r\n| where type == \"microsoft.datalakestore/accounts\"\r\n| project name, subscriptionId, resourceGroup, type, rid=id",
+              "size": 0,
+              "noDataMessage": "Azure Datalake Gen1 was not found in selected subscriptions",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 5"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectTab",
+        "comparison": "isEqualTo",
+        "value": "2"
+      },
+      "name": "storage_accounts"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "# Compute Resources"
+            },
+            "name": "text - 0"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Azure Kubernetes Clusters\r\nKubernetes clusters are not recoverable and need to be manually recreated int he destinaiton tenant"
+            },
+            "name": "text - 2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources \r\n| where type == \"microsoft.containerservice/managedclusters\" \r\n| project name, resourceGroup, rid=id, subscriptionId",
+              "size": 0,
+              "noDataMessage": "No kubernetes clusters were found in selected subscriptions",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "aks"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Disks with Encryption enabled\r\nIf you are using Disk Encryption Sets to encrypt Managed Disks with customer-managed keys, you must disable and re-enable the system-assigned identities associated with Disk Encryption Sets. And you must re-create the role assignments i.e. again grant required permissions to Disk Encryption Sets in the Key Vaults."
+            },
+            "name": "text - 3"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"microsoft.compute/disks\"\r\n| extend diskpro=properties.encryption \r\n| where diskpro.type == \"EncryptionAtRestWithPlatformAndCustomerKeys\"\r\n| project name, subscriptionId, resourceGroup, rid=id",
+              "size": 0,
+              "title": "Disks that have encryption enabled",
+              "noDataMessage": "Disks with encryption enabled were not found",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 4"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources \r\n| where type == \"microsoft.compute/diskencryptionsets\"\r\n| project name, subscriptionId, resourceGroup, rid=id",
+              "size": 0,
+              "title": "Disk Encryption Sets",
+              "noDataMessage": "Disk Encryption Sets were not found in the selected subscriptions",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 5"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectTab",
+        "comparison": "isEqualTo",
+        "value": "4"
+      },
+      "name": "compute"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## Azure Active Directory Domain Services\r\nYou cannot transfer an Azure AD Domain Services managed domain to a different directory. For more information, see [Frequently asked questions (FAQs) about Azure Active Directory (AD) Domain Services](https://learn.microsoft.com/en-us/azure/active-directory-domain-services/faqs)"
+            },
+            "name": "text - 0"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources \r\n| where type == \"microsoft.aad/domainservices\"\r\n| project name, subscriptionId, resourceGroup, rid=id",
+              "size": 0,
+              "noDataMessage": "Azure Active Directory Domain Services were not found in selected subscriptions",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 1"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Managed identities\r\nYou must disable and re-enable the managed identities, then re-create the role assignments."
+            },
+            "name": "text - 2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources \r\n| where identity.type == \"SystemAssigned\"\r\n| extend name = tostring(identity.principalId)\r\n| project rid=id, type, subscriptionId, resourceGroup, name",
+              "size": 0,
+              "title": "System Assigned Managed Identities",
+              "noDataMessage": "System Assigned Managed Identites were not found",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 3"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources \r\n| where type == \"microsoft.managedidentity/userassignedidentities\"\r\n| project name, subscriptionId, resourceGroup, type, rid=id",
+              "size": 0,
+              "title": "User Assinged Managed Identities",
+              "noDataMessage": "User Assinged Managed Identities were not found",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 4"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectTab",
+        "comparison": "isEqualTo",
+        "value": "3"
+      },
+      "name": "Identity_group"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "# Encryption"
+            },
+            "name": "text - 0"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "If you are using encryption at rest for a resource, such as a storage account or SQL database, that has a dependency on a key vault that is being transferred, it can lead to an unrecoverable scenario. If you have this situation, you should take steps to use a different key vault or temporarily disable customer-managed keys to avoid this unrecoverable scenario.",
+              "style": "warning"
+            },
+            "name": "text - 1"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "The resources listed below have customer manged keys enabled for encryption. Their may be additional resources not listed here that can have encrytption enabled. ",
+              "style": "error"
+            },
+            "name": "text - 5"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"microsoft.storage/storageaccounts\" and properties['encryption'].keySource == \"Microsoft.Keyvault\"\r\n| project id, resourceGroup,  EncryptionKeySource=properties['encryption'].keySource, Keyvault=properties['encryption'].keyvaultproperties.keyvaulturi, subscriptionId",
+              "size": 0,
+              "title": "Storage Accounts - With CMK Enabled",
+              "noDataMessage": "Stoaage accounts with CMK enabled were not found in selected subscriptions",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"microsoft.compute/disks\"\r\n| extend diskpro=properties.encryption \r\n| where diskpro.type == \"EncryptionAtRestWithCustomerKey\"\r\n| project rid=id, subscriptionId, resourceGroup, EncryptionSetID=diskpro.diskEncryptionSetId",
+              "size": 0,
+              "title": "Disks that have encryption enabled",
+              "noDataMessage": "Disks with encryption enabled were not found",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ]
+            },
+            "name": "query - 4 - Copy"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources \r\n| where type == \"microsoft.compute/diskencryptionsets\"\r\n| extend kv=properties.activeKey.sourceVault \r\n| project  rid=id, subscriptionId, resourceGroup, keyvaultId=kv.id",
+              "size": 0,
+              "title": "Disk Encryption Sets",
+              "noDataMessage": "Disk Encryption Sets were not found in the selected subscriptions",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 5 - Copy"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"microsoft.sql/servers\"\r\n| project id, resourceGroup, subscriptionId",
+              "size": 0,
+              "title": "SQL Servers that may have CMK Enabled",
+              "noDataMessage": "No SQL Servers found in subscriptions",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 6"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectTab",
+        "comparison": "isEqualTo",
+        "value": "5"
+      },
+      "name": "Encryption_group"
+    }
+  ],
+  "fallbackResourceIds": [
+    "azure monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
