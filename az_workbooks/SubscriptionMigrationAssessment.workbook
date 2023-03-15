@@ -4,14 +4,14 @@
     {
       "type": 1,
       "content": {
-        "json": "# Subscription Migration Assessment\r\n\r\nV0.1 - Last modified 3/14/23"
+        "json": "# Subscription Migration Assessment\r\n\r\nV0.2 - Last modified 3/14/23"
       },
       "name": "text - 1"
     },
     {
       "type": 1,
       "content": {
-        "json": "### Important\r\nMoving an Azure subscription to a new tenant can have impact on your organization's Azure environment. Before initiating a subscription migration to a new tenant, it is recommended to thoroughly evaluate the potential impacts. This workbook lists the known Azure resources in your subscription that is impacted when migrating a subscription to a new tenant. Because resource types in Azure are constantly evolving, there might be additional dependencies not listed here that can cause a breaking change to your environment. Please refere to the microsoft documentation for [Transfer an Azure subscription to a different Azure AD directory](https://learn.microsoft.com/en-us/azure/role-based-access-control/transfer-subscription)\r\n\r\nThis workbook does show - Azure AD App Registrations, Role Assignments, Custom Role Definitions, and Azure Policy Definitions & Assignments",
+        "json": "### Important\r\nMoving an Azure subscription to a new tenant can have impact on your organization's Azure environment. Before initiating a subscription migration to a new tenant, it is recommended to thoroughly evaluate the potential impacts. This workbook lists the known Azure resources in your subscription that is impacted when migrating a subscription to a new tenant. Because resource types in Azure are constantly evolving, there might be additional dependencies not listed here that can cause a breaking change to your environment. Please refere to the microsoft documentation for [Transfer an Azure subscription to a different Azure AD directory](https://learn.microsoft.com/en-us/azure/role-based-access-control/transfer-subscription)\r\n\r\nThis workbook does show - Azure AD App Registrations, Role Assignments, Custom Role Definitions",
         "style": "warning"
       },
       "name": "text - 8"
@@ -691,7 +691,7 @@
               "version": "KqlItem/1.0",
               "query": "\r\npolicyResources\r\n| where type =~'Microsoft.Authorization/PolicyAssignments' \r\n| project policyAssignmentId = tolower(tostring(id)), policyAssignmentDisplayName = tostring(properties.displayName), policyAssignmentDefinitionId = tolower(properties.policyDefinitionId), scope = tolower(properties.scope)\r\n| join kind=leftouter(\r\n policyResources\r\n | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'\r\n | project category = tostring(properties.metadata.category), type = iff(type =~ 'Microsoft.Authorization/PolicysetDefinitions', 'initiative', 'policy'),definitionId = tolower(id)\r\n) on $left.policyAssignmentDefinitionId == $right.definitionId\r\n| project-away definitionId, policyAssignmentDefinitionId",
               "size": 0,
-              "title": "Policy Assigned - Subscription Scope",
+              "title": "Policy assignments at the subscription scope",
               "noDataMessage": "No policy assignments found at the subscription scope",
               "noDataMessageStyle": 3,
               "showExportToExcel": true,
@@ -707,9 +707,29 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
+              "query": "policyResources\r\n | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'\r\n | project displayName=properties.displayName, subscriptionId, category = tostring(properties.metadata.category), Type = iff(type =~ 'Microsoft.Authorization/PolicysetDefinitions', 'initiative', 'policy'), definitionId = tolower(id)",
+              "size": 0,
+              "title": "Policy definitions located at the subscription scope",
+              "noDataMessage": "No policy defnitions were found at the selected subscriptions",
+              "noDataMessageStyle": 3,
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 3"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
               "query": "\r\npolicyResources\r\n| where type =~'Microsoft.Authorization/PolicyAssignments' and properties.scope contains \"managementgroups\"\r\n| project policyAssignmentDisplayName = tostring(properties.displayName), policyAssignmentDefinitionId = tolower(properties.policyDefinitionId), managementGroupScope = tolower(substring(properties.scope, 49)),policyAssignmentId = tolower(tostring(id))\r\n| join kind=leftouter(\r\n policyResources\r\n | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'\r\n | project category = tostring(properties.metadata.category), Type = iff(type =~ 'Microsoft.Authorization/PolicysetDefinitions', 'initiative', 'policy'),definitionId = tolower(id)\r\n) on $left.policyAssignmentDefinitionId == $right.definitionId\r\n| project-away definitionId, policyAssignmentDefinitionId",
               "size": 0,
-              "title": "Policy Assigned - Tenant Scope",
+              "title": "Policy assigned at the management group scope",
+              "noDataMessage": "No policy was found to be assigned",
+              "noDataMessageStyle": 3,
               "showExportToExcel": true,
               "queryType": 1,
               "resourceType": "microsoft.resources/tenants",
