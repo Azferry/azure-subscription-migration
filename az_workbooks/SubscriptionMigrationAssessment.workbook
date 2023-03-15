@@ -99,6 +99,14 @@
             "linkLabel": "Encryption",
             "subTarget": "5",
             "style": "link"
+          },
+          {
+            "id": "6c411df5-9eea-4567-9df8-e992fc53930d",
+            "cellValue": "selectTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Policy",
+            "subTarget": "6",
+            "style": "link"
           }
         ]
       },
@@ -663,6 +671,62 @@
         "value": "5"
       },
       "name": "Encryption_group"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "# Azure Policy"
+            },
+            "name": "text - 0"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "\r\npolicyResources\r\n| where type =~'Microsoft.Authorization/PolicyAssignments' \r\n| project policyAssignmentId = tolower(tostring(id)), policyAssignmentDisplayName = tostring(properties.displayName), policyAssignmentDefinitionId = tolower(properties.policyDefinitionId), scope = tolower(properties.scope)\r\n| join kind=leftouter(\r\n policyResources\r\n | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'\r\n | project category = tostring(properties.metadata.category), type = iff(type =~ 'Microsoft.Authorization/PolicysetDefinitions', 'initiative', 'policy'),definitionId = tolower(id)\r\n) on $left.policyAssignmentDefinitionId == $right.definitionId\r\n| project-away definitionId, policyAssignmentDefinitionId",
+              "size": 0,
+              "title": "Policy Assigned - Subscription Scope",
+              "noDataMessage": "No policy assignments found at the subscription scope",
+              "noDataMessageStyle": 3,
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 1"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "\r\npolicyResources\r\n| where type =~'Microsoft.Authorization/PolicyAssignments' and properties.scope contains \"managementgroups\"\r\n| project policyAssignmentDisplayName = tostring(properties.displayName), policyAssignmentDefinitionId = tolower(properties.policyDefinitionId), managementGroupScope = tolower(substring(properties.scope, 49)),policyAssignmentId = tolower(tostring(id))\r\n| join kind=leftouter(\r\n policyResources\r\n | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'\r\n | project category = tostring(properties.metadata.category), Type = iff(type =~ 'Microsoft.Authorization/PolicysetDefinitions', 'initiative', 'policy'),definitionId = tolower(id)\r\n) on $left.policyAssignmentDefinitionId == $right.definitionId\r\n| project-away definitionId, policyAssignmentDefinitionId",
+              "size": 0,
+              "title": "Policy Assigned - Tenant Scope",
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "crossComponentResources": [
+                "value::tenant"
+              ]
+            },
+            "name": "query - 2"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectTab",
+        "comparison": "isEqualTo",
+        "value": "6"
+      },
+      "name": "group - 9"
     }
   ],
   "fallbackResourceIds": [
