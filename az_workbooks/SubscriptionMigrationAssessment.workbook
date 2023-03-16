@@ -11,7 +11,7 @@
     {
       "type": 1,
       "content": {
-        "json": "### Important\r\nMoving an Azure subscription to a new tenant can have impact on your organization's Azure environment. Before initiating a subscription migration to a new tenant, it is recommended to thoroughly evaluate the potential impacts. This workbook lists the known Azure resources in your subscription that is impacted when migrating a subscription to a new tenant. Because resource types in Azure are constantly evolving, there might be additional dependencies not listed here that can cause a breaking change to your environment. Please refere to the microsoft documentation for [Transfer an Azure subscription to a different Azure AD directory](https://learn.microsoft.com/en-us/azure/role-based-access-control/transfer-subscription)\r\n\r\nThis workbook does show - Azure AD App Registrations, Role Assignments, Custom Role Definitions",
+        "json": "### Important\r\nMoving an Azure subscription to a new tenant can have impact on your organization's Azure environment. Before initiating a subscription migration to a new tenant, it is recommended to thoroughly evaluate the potential impacts. This workbook lists the known Azure resources in your subscription that is impacted when migrating a subscription to a new tenant. Because resource types in Azure are constantly evolving, there might be additional dependencies not listed here that can cause a breaking change to your environment. Please refere to the microsoft documentation for [Transfer an Azure subscription to a different Azure AD directory](https://learn.microsoft.com/en-us/azure/role-based-access-control/transfer-subscription)\r\n\r\nThis workbook does show - Azure AD App Registrations, Role Assignments, Custom Role Definitions, Azure Deployment Environments",
         "style": "warning"
       },
       "name": "text - 8"
@@ -164,7 +164,6 @@
               ],
               "visualization": "tiles",
               "tileSettings": {
-                "showBorder": false,
                 "titleContent": {
                   "columnMatch": "SubscriptionName",
                   "formatter": 1
@@ -182,7 +181,11 @@
                       "maximumFractionDigits": 2
                     }
                   }
-                }
+                },
+                "showBorder": false,
+                "sortCriteriaField": "resourceCount",
+                "sortOrderField": 2,
+                "size": "auto"
               },
               "graphSettings": {
                 "type": 0,
@@ -205,6 +208,80 @@
             },
             "customWidth": "50",
             "name": "query - 7"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Resources| where type in (    \r\n'microsoft.managedidentity/userassignedidentities',    \r\n'microsoft.keyvault/vaults',   \r\n'microsoft.sql/servers/databases',   \r\n'microsoft.datalakestore/accounts',\r\n'microsoft.dbformysql/flexibleservers'\r\n'microsoft.dbformysql/servers',    \r\n'microsoft.containerservice/managedclusters',\r\n'microsoft.compute/diskencryptionsets',\r\n'microsoft.aad/domainservices')    \r\nor identity has 'SystemAssigned'    \r\nor (type =~ 'microsoft.storage/storageaccounts' and properties['isHnsEnabled'] == true)\r\n| summarize TotalResources=count() by type\r\n| order by TotalResources desc",
+              "size": 0,
+              "title": "Total Impacted Resources - By Type",
+              "noDataMessage": "No Resources found that are impacted by a migration",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ],
+              "gridSettings": {
+                "labelSettings": [
+                  {
+                    "columnId": "type",
+                    "label": "Resource Type"
+                  },
+                  {
+                    "columnId": "TotalResources",
+                    "label": "Total Resources"
+                  }
+                ]
+              },
+              "sortBy": []
+            },
+            "customWidth": "50",
+            "name": "query - 11"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Resources\r\n| where type in (    \r\n'microsoft.managedidentity/userassignedidentities',    \r\n'microsoft.keyvault/vaults',   \r\n'microsoft.sql/servers/databases',   \r\n'microsoft.datalakestore/accounts',\r\n'microsoft.dbformysql/flexibleservers'\r\n'microsoft.dbformysql/servers',    \r\n'microsoft.containerservice/managedclusters',\r\n'microsoft.compute/diskencryptionsets',\r\n'microsoft.aad/domainservices')    \r\n    or identity has 'SystemAssigned'    \r\n    or (type =~ 'microsoft.storage/storageaccounts' and properties['isHnsEnabled'] == true)\r\n| summarize count() by subscriptionId\r\n| join (ResourceContainers | where type=='microsoft.resources/subscriptions' | project subscriptionName=name, subscriptionId) on subscriptionId\r\n| project-away subscriptionId1",
+              "size": 0,
+              "title": "Total Impacted Resources - By Subscription",
+              "noDataMessage": "No impacted resources found",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "subscriptionName",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "count_",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                },
+                "showBorder": false,
+                "sortCriteriaField": "count_",
+                "sortOrderField": 2,
+                "size": "auto"
+              }
+            },
+            "customWidth": "50",
+            "name": "query - 12"
           },
           {
             "type": 1,
@@ -461,7 +538,7 @@
           {
             "type": 1,
             "content": {
-              "json": "## Azure Kubernetes Clusters\r\nKubernetes clusters are not recoverable and need to be manually recreated in the destinaiton tenant",
+              "json": "## Azure Kubernetes Clusters\r\nKubernetes clusters and its associated resources cannot be transfered to a different directory. For more information, see [Frequently asked questions about Azure Kubernetes Service](https://learn.microsoft.com/en-us/azure/aks/faq)",
               "style": "info"
             },
             "name": "text - 2"
