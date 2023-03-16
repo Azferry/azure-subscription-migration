@@ -436,7 +436,7 @@
           {
             "type": 1,
             "content": {
-              "json": "## Azure Kubernetes Clusters\r\nKubernetes clusters are not recoverable and need to be manually recreated int he destinaiton tenant",
+              "json": "## Azure Kubernetes Clusters\r\nKubernetes clusters are not recoverable and need to be manually recreated in the destinaiton tenant",
               "style": "info"
             },
             "name": "text - 2"
@@ -532,6 +532,7 @@
               "version": "KqlItem/1.0",
               "query": "resources \r\n| where type == \"microsoft.aad/domainservices\"\r\n| project name, subscriptionId, resourceGroup, rid=id",
               "size": 0,
+              "title": "Active Directory Domain Services Resources",
               "noDataMessage": "Azure Active Directory Domain Services were not found in selected subscriptions",
               "noDataMessageStyle": 3,
               "showExportToExcel": true,
