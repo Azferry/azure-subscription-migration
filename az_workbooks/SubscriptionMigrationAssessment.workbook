@@ -300,6 +300,31 @@
               ]
             },
             "name": "query - 8"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "# Microsoft Dev Box\r\nYou cannot transfer a dev box and its associated resources to a different directory. Once a subscription moves to another tenant, you will not be able to perform any actions on your dev box",
+              "style": "info"
+            },
+            "name": "text - 10"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Resources\r\n| where type =~  \"microsoft.devcenter/devcenters/devboxdefinitions\"\r\n| project id, name, resourceGroup, subscriptionId",
+              "size": 0,
+              "title": "Microsoft Dev Box",
+              "noDataMessage": "No Microsoft Dev Box are deployed in the selected subscriptions",
+              "noDataMessageStyle": 3,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 9"
           }
         ]
       },
@@ -547,7 +572,8 @@
           {
             "type": 1,
             "content": {
-              "json": "## Managed identities\r\nYou must disable and re-enable the managed identities, then re-create the role assignments."
+              "json": "## Managed identities\r\nManaged identities are not recoverable, you must disable and re-enable the managed identities, then re-create the role assignments. If it is a user assigned managed identity then you must delete, re-create, attach the managed identities to the appropriate resource and re-create the role assignments.",
+              "style": "info"
             },
             "name": "text - 2"
           },
