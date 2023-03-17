@@ -34,3 +34,9 @@ terraform.rc
 
 # MD Lint
 *.markdownlint.json
+
+# Document types
+*.csv
+*.xlsx
+*.xls
+*.zip
