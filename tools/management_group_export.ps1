@@ -22,7 +22,7 @@
     - Required premissions: Reader over management group scope
   	- Requred Modules: Az
 .EXAMPLE
-  Run script
+  Run script 
   .\management_group_export.ps1
 #>
 
