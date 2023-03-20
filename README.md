@@ -3,7 +3,7 @@
 Migration of subscriptions between tenants.
 
 > **Warning**
-> Check the Microsoft Migration [documentation][ms_transfer_sub] to get a list of all resources that will be impacted.
+> Transferring an Azure subscription to a different Azure AD directory is a complex process that must be carefully planned and executed. Many Azure services require security principals (identities) to operate. Please read the Microsoft migration [article][ms_transfer_sub] article that tries to cover most of the Azure services that depend heavily on security principals, but is not comprehensive.
 
 ## Subscription Assessment
 
