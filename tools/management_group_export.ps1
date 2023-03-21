@@ -38,7 +38,7 @@ $output = @()
 
 foreach ($mg in $mg_groups) {
     $output += [PSCustomObject]@{
-		"Name" = $mg.Type
+		"Name" = $mg.Name
         "DisplayName" = $mg.DisplayName
         "Id" = $mg.Id
         "ParentId" = $mg.Parent
