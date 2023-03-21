@@ -26,7 +26,11 @@ terraform destroy
 ### Deploy Via Azure Portal
 
 1. Navigate to the [Azure Monitor][wb_portal] in the portal
-
+2. Under the Quick Start select "Empty" Workbook
+3. On the top bar select the "Advanced Editor" ("</>")
+4. Copy and paste the gallery template json and select apply
+5. Select the done editing button on the top bar
+6. Save the workbook
 
 <!--- Link Ref --->
 [wb_portal]: https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/workbooks
