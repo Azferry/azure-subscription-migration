@@ -3,7 +3,10 @@
 Migrating an Azure subscription to a new Azure AD tenant can be a complex and time-consuming process that involves a lot of manual overhead.To simplify this process, this repository contains tools and reports that helps reduce the amount of manual overhead when migrating subscriptions to a new Azure AD Tenant.
 
 > **Warning**
-> Please note that transferring an Azure subscription to another Azure AD Tenant can have significant impacts on your Azure resources. In some scenarios, transferring a subscription might require downtime to complete the process. Before proceeding with a transition, we strongly recommend that you develop a comprehensive plan for managing the impacts and risks associated. Many Azure services require security principals (identities) to operate. Please read the Microsoft migration [article][ms_transfer_sub] article that tries to cover most of the Azure services that depend heavily on security principals, but is not a comprehensive list.
+> Please note that transferring an Azure subscription to another Azure AD Tenant can have significant impacts on your Azure resources. In some scenarios, transferring a subscription might require downtime to complete the process. Before proceeding with a transition, we strongly recommend that you develop a comprehensive plan for managing the impacts and risks associated.
+
+> **Warning**
+>  Many Azure services require security principals (identities) to operate. Please read the Microsoft migration [article][ms_transfer_sub] article that tries to cover most of the Azure services that depend heavily on security principals, but is not a comprehensive list.
 
 ## Subscription Assessment
 
