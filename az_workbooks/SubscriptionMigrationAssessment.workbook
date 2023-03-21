@@ -40,19 +40,23 @@
             "multiSelect": true,
             "quote": "'",
             "delimiter": ",",
+            "query": "resourcecontainers\r\n| where type == \"microsoft.resources/subscriptions\"\r\n| project id",
+            "crossComponentResources": [
+              "value::tenant"
+            ],
             "typeSettings": {
               "additionalResourceOptions": [
                 "value::all"
               ],
-              "includeAll": true
+              "showDefault": false
             },
             "timeContext": {
               "durationMs": 86400000
             },
+            "queryType": 1,
+            "resourceType": "microsoft.resources/tenants",
             "value": [
-              "/subscriptions/918e0226-090f-4337-a4cc-e8614d110d0f",
-              "/subscriptions/8b3c51ac-2b67-4703-bc14-1518bdca3a37",
-              "/subscriptions/c949b54f-c539-443a-9fc2-6289a2815edf"
+              "value::all"
             ]
           }
         ],
