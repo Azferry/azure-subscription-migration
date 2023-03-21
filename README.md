@@ -25,10 +25,9 @@ Deploy the [Azure Monitor Workbook][az_sub_workbook] to view the resources that 
 ## After the Subscription Transfer
 
 * It may take upwards of 20 minutes to view the subscription in the new directory
-* It may take up to 30 minutes after the subscription shows in the destination tenant, for the subscription to show in the default management group.
+* After the subscription shows in the destination tenant, it may take up to 30 minutes for the subscription to show in the default management group.
 * All RBAC assignments in the source tenant are removed from the subscription scope. In the destination tenant the subscription will inherit the user access administrator from the Root (Inherited) scope [Elevated Access][ms_elevated_access]
 * The user who triggered the transfer will be assigned the classic administrator role.
-
 
 
 <!--- Link Ref --->
