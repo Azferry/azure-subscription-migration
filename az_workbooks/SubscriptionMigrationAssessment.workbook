@@ -4,7 +4,7 @@
     {
       "type": 1,
       "content": {
-        "json": "# Subscription Migration Assessment\r\n\r\nV0.4 - Last modified 3/21/23"
+        "json": "# Subscription Migration Assessment\r\n\r\nV0.4 - Last modified 4/17/23"
       },
       "name": "text_VersionHeader"
     },
@@ -76,7 +76,7 @@
             "id": "fb8b8c6c-2856-435e-8314-2a0682069f30",
             "cellValue": "selectTab",
             "linkTarget": "parameter",
-            "linkLabel": "Services",
+            "linkLabel": "Overview",
             "subTarget": "1",
             "style": "link"
           },
@@ -119,6 +119,14 @@
             "linkLabel": "Policy",
             "subTarget": "6",
             "style": "link"
+          },
+          {
+            "id": "1c46e4f3-2226-4824-b800-769068c928ee",
+            "cellValue": "selectTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Databases",
+            "subTarget": "7",
+            "style": "link"
           }
         ]
       },
@@ -130,6 +138,14 @@
         "version": "NotebookGroup/1.0",
         "groupType": "editable",
         "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## Total Number of Resources in Subscriptions\r\nShows a count of all resources deployed in the selected subscriptions",
+              "style": "info"
+            },
+            "name": "Subscription_count_message"
+          },
           {
             "type": 3,
             "content": {
@@ -222,10 +238,18 @@
             "name": "query_totalResourcesInSubscriptions"
           },
           {
+            "type": 1,
+            "content": {
+              "json": "## Total Impacted Resources\r\nCount of known resources that will be impacted when transfering a subscrition to a new Azure AD Tenant. ",
+              "style": "info"
+            },
+            "name": "text - 9"
+          },
+          {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Resources| where type in (    \r\n'microsoft.managedidentity/userassignedidentities',    \r\n'microsoft.keyvault/vaults',   \r\n'microsoft.sql/servers/databases',   \r\n'microsoft.datalakestore/accounts',\r\n'microsoft.dbformysql/flexibleservers'\r\n'microsoft.dbformysql/servers',    \r\n'microsoft.containerservice/managedclusters',\r\n'microsoft.compute/diskencryptionsets',\r\n'microsoft.aad/domainservices')    \r\nor identity has 'SystemAssigned'    \r\nor (type =~ 'microsoft.storage/storageaccounts' and properties['isHnsEnabled'] == true)\r\nor (type == \"microsoft.compute/disks\" and properties.encryption.type == \"EncryptionAtRestWithCustomerKey\")\r\n| summarize TotalResources=count() by type\r\n| order by TotalResources desc",
+              "query": "Resources| where type in (    \r\n'microsoft.managedidentity/userassignedidentities',    \r\n'microsoft.keyvault/vaults',   \r\n'microsoft.sql/servers/databases',\r\n'microsoft.sql/servers',\r\n'microsoft.sql/managedinstances',  \r\n'microsoft.sql/virtualclusters',\r\n'microsoft.datalakestore/accounts',\r\n'microsoft.dbformysql/flexibleservers'\r\n'microsoft.dbformysql/servers',    \r\n'microsoft.containerservice/managedclusters',\r\n'microsoft.compute/diskencryptionsets',\r\n'microsoft.aad/domainservices')    \r\nor identity has 'SystemAssigned'    \r\nor (type =~ 'microsoft.storage/storageaccounts' and properties['isHnsEnabled'] == true)\r\nor (type == \"microsoft.compute/disks\" and properties.encryption.type == \"EncryptionAtRestWithCustomerKey\")\r\n| summarize TotalResources=count() by type\r\n| order by TotalResources desc",
               "size": 0,
               "title": "Total Impacted Resources - By Type",
               "noDataMessage": "No Resources found that are impacted by a migration",
@@ -296,7 +320,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Resources\r\n| where type in (    \r\n'microsoft.managedidentity/userassignedidentities',    \r\n'microsoft.keyvault/vaults',   \r\n'microsoft.sql/servers/databases',   \r\n'microsoft.datalakestore/accounts',\r\n'microsoft.dbformysql/flexibleservers'\r\n'microsoft.dbformysql/servers',    \r\n'microsoft.containerservice/managedclusters',\r\n'microsoft.compute/diskencryptionsets',\r\n'microsoft.aad/domainservices')    \r\n    or identity has 'SystemAssigned'    \r\n    or (type =~ 'microsoft.storage/storageaccounts' and properties['isHnsEnabled'] == true)\r\n    or (type == \"microsoft.compute/disks\" and properties.encryption.type == \"EncryptionAtRestWithCustomerKey\")\r\n| summarize count() by subscriptionId\r\n| join (ResourceContainers | where type=='microsoft.resources/subscriptions' | project subscriptionName=name, subscriptionId) on subscriptionId\r\n| project-away subscriptionId1",
+              "query": "Resources\r\n| where type in (    \r\n'microsoft.managedidentity/userassignedidentities',    \r\n'microsoft.keyvault/vaults',   \r\n'microsoft.sql/servers/databases',\r\n'microsoft.sql/servers',\r\n'microsoft.sql/managedinstances',  \r\n'microsoft.sql/virtualclusters',   \r\n'microsoft.datalakestore/accounts',\r\n'microsoft.dbformysql/flexibleservers'\r\n'microsoft.dbformysql/servers',    \r\n'microsoft.containerservice/managedclusters',\r\n'microsoft.compute/diskencryptionsets',\r\n'microsoft.aad/domainservices')    \r\n    or identity has 'SystemAssigned'    \r\n    or (type =~ 'microsoft.storage/storageaccounts' and properties['isHnsEnabled'] == true)\r\n    or (type == \"microsoft.compute/disks\" and properties.encryption.type == \"EncryptionAtRestWithCustomerKey\")\r\n| summarize count() by subscriptionId\r\n| join (ResourceContainers | where type=='microsoft.resources/subscriptions' | project subscriptionName=name, subscriptionId) on subscriptionId\r\n| project-away subscriptionId1",
               "size": 0,
               "title": "Total Impacted Resources - By Subscription",
               "noDataMessage": "No impacted resources found",
@@ -348,7 +372,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "resources \r\n| where type == \"microsoft.keyvault/vaults\"\r\n| join kind=leftouter (\r\n    ResourceContainers \r\n    | where type=='microsoft.resources/subscriptions' \r\n    | project Subscription=id, subscriptionId\r\n    ) on subscriptionId\r\n| join kind=leftouter (\r\n    ResourceContainers\r\n    | where type == \"microsoft.resources/subscriptions/resourcegroups\"\r\n    | project resourceGroup=name, resourceGroupId=id\r\n    ) on resourceGroup\r\n| project rid=id, resourceGroupId, Subscription\r\n\r\n",
+              "query": "resources \r\n| where type == \"microsoft.keyvault/vaults\"\r\n| join kind=leftouter (\r\n    ResourceContainers \r\n    | where type=='microsoft.resources/subscriptions' \r\n    | project Subscription=id, subscriptionId\r\n    ) on subscriptionId\r\n| join kind=leftouter (\r\n    ResourceContainers\r\n    | where type == \"microsoft.resources/subscriptions/resourcegroups\"\r\n    | project resourceGroup=name, resourceGroupId=id\r\n    ) on resourceGroup\r\n| project Name=id, resourceGroupId, Subscription\r\n\r\n",
               "size": 0,
               "title": "Keyvaults",
               "noDataMessage": "No Keyvaults were found",
@@ -360,76 +384,6 @@
               ]
             },
             "name": "KvQuery"
-          },
-          {
-            "type": 1,
-            "content": {
-              "json": "## Azure SQL\r\nYou cannot transfer an Azure SQL database with Azure AD authentication enabled to a different directory. For more information, see [Use Azure Active Directory authentication.](https://learn.microsoft.com/en-us/azure/azure-sql/database/authentication-aad-overview)",
-              "style": "info"
-            },
-            "name": "text - 2"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "resources \r\n| where type == \"microsoft.sql/servers\" \r\n| extend administrators=properties.administrators \r\n| where administrators.azureADOnlyAuthentication == \"true\" \r\n| project name, subscriptionId, resourceGroup, rid=id",
-              "size": 0,
-              "title": "Azure SQL - With Azure AD authentication enabled ",
-              "noDataMessage": "Azure SQL with AD enabled was not found",
-              "noDataMessageStyle": 3,
-              "showExportToExcel": true,
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "{Subscriptions}"
-              ]
-            },
-            "name": "query - 3"
-          },
-          {
-            "type": 1,
-            "content": {
-              "json": "## Azure MySQL\r\nYou cannot transfer an Azure database for MySQL (Single and Flexible server) with Azure AD authentication enabled to a different directory.\r\n",
-              "style": "info"
-            },
-            "name": "text - 4"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "resources\r\n| where type == \"microsoft.dbformysql/flexibleservers\"\r\n| project name, resourceGroup, subscriptionId, id",
-              "size": 0,
-              "title": "Azure Database for MySQL Flexible Server",
-              "noDataMessage": "Azure Database for MySQL Flexible Server  was not found in subscriptions",
-              "noDataMessageStyle": 3,
-              "showExportToExcel": true,
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "{Subscriptions}"
-              ]
-            },
-            "name": "query - 5"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "resources\r\n| where type == \"microsoft.dbformysql/servers\"",
-              "size": 0,
-              "title": "Azure Database for MySQL - Single Server is scheduled for retirement by September 16, 2024",
-              "noDataMessage": "Azure Database for MySQL was not found in subscription",
-              "noDataMessageStyle": 3,
-              "showExportToExcel": true,
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "{Subscriptions}"
-              ]
-            },
-            "name": "query - 8"
           },
           {
             "type": 1,
@@ -945,6 +899,91 @@
         "value": "6"
       },
       "name": "group_policy"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## Azure SQL\r\nYou cannot transfer an Azure SQL database with Azure AD authentication enabled to a different directory. For more information, see [Use Azure Active Directory authentication.](https://learn.microsoft.com/en-us/azure/azure-sql/database/authentication-aad-overview)",
+              "style": "info"
+            },
+            "name": "text - 2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources \r\n| where type == \"microsoft.sql/servers\" \r\n| extend administrators=properties.administrators \r\n| where administrators.azureADOnlyAuthentication == \"true\" \r\n| project name, subscriptionId, resourceGroup, rid=id",
+              "size": 0,
+              "title": "Azure SQL - With Azure AD authentication enabled ",
+              "noDataMessage": "Azure SQL with AD enabled was not found",
+              "noDataMessageStyle": 3,
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 3"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Azure MySQL\r\nYou cannot transfer an Azure database for MySQL (Single and Flexible server) with Azure AD authentication enabled to a different directory.\r\n",
+              "style": "info"
+            },
+            "name": "text - 4"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"microsoft.dbformysql/flexibleservers\"\r\n| project name, resourceGroup, subscriptionId, id",
+              "size": 0,
+              "title": "Azure Database for MySQL Flexible Server",
+              "noDataMessage": "Azure Database for MySQL Flexible Server  was not found in subscriptions",
+              "noDataMessageStyle": 3,
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 5"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resources\r\n| where type == \"microsoft.dbformysql/servers\"",
+              "size": 0,
+              "title": "Azure Database for MySQL - Single Server is scheduled for retirement by September 16, 2024",
+              "noDataMessage": "Azure Database for MySQL was not found in subscription",
+              "noDataMessageStyle": 3,
+              "showExportToExcel": true,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ]
+            },
+            "name": "query - 8"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectTab",
+        "comparison": "isEqualTo",
+        "value": "7"
+      },
+      "name": "database_services"
     }
   ],
   "fallbackResourceIds": [
