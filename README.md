@@ -29,6 +29,8 @@ Deploy the [Azure Monitor Workbook][az_sub_workbook] to view the resources that 
 * All RBAC assignments in the source tenant are removed from the subscription scope. In the destination tenant the subscription will inherit the user access administrator from the Root (Inherited) scope [Elevated Access][ms_elevated_access]
 * The user who triggered the transfer will be assigned the classic administrator role.
 
+<center><img src="./doc/after_migration_01.png" width="450" ce/></center>
+
 
 <!--- Link Ref --->
 [ms_transfer_sub]: https://learn.microsoft.com/azure/role-based-access-control/transfer-subscription
